@@ -1,30 +1,31 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
-# Sample hardcoded student marks (replace with file data if needed)
-student_marks = {
-    "Alice": 85,
-    "Bob": 72,
-    "Charlie": 90,
-    "David": 65
-}
-
 app = FastAPI()
 
-# ✅ Enable CORS for all origins
+# Enable CORS for all origins so your app can be called from anywhere
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
+    allow_methods=["GET"],
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to my FastAPI app!"}
+# Example marks data for 100 students (replace with your real data)
+marks_data = {
+    "Alice": 85,
+    "Bob": 90,
+    "Charlie": 78,
+    "David": 88,
+    "Eva": 92,
+    # add all your student names and marks here
+}
 
 @app.get("/api")
-def get_marks(name: List[str] = []):
-    result = [student_marks.get(n, None) for n in name]
+def get_marks(name: List[str] = Query(...)):
+    result = []
+    for n in name:
+        mark = marks_data.get(n, None)
+        result.append(mark if mark is not None else 0)  # 0 if name not found
     return {"marks": result}
